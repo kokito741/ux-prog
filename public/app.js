@@ -1,13 +1,17 @@
 const api = {
   async get(path) {
     const res = await fetch(path);
-    return res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Request failed");
+    return data;
   },
   async post(path, body, auth = false) {
     const headers = { "Content-Type": "application/json" };
     if (auth && localStorage.getItem("token")) headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
     const res = await fetch(path, { method: "POST", headers, body: JSON.stringify(body) });
-    return res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || (data.errors && data.errors.join(", ")) || "Request failed");
+    return data;
   },
 };
 

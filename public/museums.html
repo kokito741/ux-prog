@@ -18,10 +18,11 @@
     <script>
       const { api, byId, ratingText } = window.museumApp;
       (async () => {
-        const museums = await api.get("/api/museums");
-        byId("museums").innerHTML = museums
-          .map(
-            (museum) => `
+        try {
+          const museums = await api.get("/api/museums");
+          byId("museums").innerHTML = museums
+            .map(
+              (museum) => `
             <article class="card">
               <img src="${museum.image_url || "https://picsum.photos/400/250?museum"}" alt="${museum.name}" />
               <div class="content">
@@ -32,8 +33,11 @@
                 <a href="/museum.html?id=${museum.id}">Open museum</a>
               </div>
             </article>`
-          )
-          .join("");
+            )
+            .join("");
+        } catch (error) {
+          byId("museums").innerHTML = `<p class="muted">${error.message}</p>`;
+        }
       })();
     </script>
   </body>

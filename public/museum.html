@@ -44,16 +44,17 @@
       const { api, getParam, byId, renderComments, ratingText } = window.museumApp;
       const museumId = getParam("id");
       async function load() {
-        const museum = await api.get(`/api/museums/${museumId}`);
-        byId("museum").innerHTML = `
+        try {
+          const museum = await api.get(`/api/museums/${museumId}`);
+          byId("museum").innerHTML = `
           <h2>${museum.name}</h2>
           <p class="muted">${museum.location}</p>
           <p>${museum.description}</p>
           <p>${ratingText(museum)}</p>
         `;
-        byId("artifacts").innerHTML = museum.artifacts
-          .map(
-            (artifact) => `
+          byId("artifacts").innerHTML = museum.artifacts
+            .map(
+              (artifact) => `
             <article class="card">
               <img src="${artifact.image_url || "https://picsum.photos/400/250?artifact"}" alt="${artifact.name}">
               <div class="content">
@@ -62,35 +63,42 @@
                 <a href="/artifact.html?id=${artifact.id}">View exhibit</a>
               </div>
             </article>`
-          )
-          .join("");
-        const comments = await api.get(`/api/comments/museum/${museumId}`);
-        renderComments(byId("comments"), comments);
+            )
+            .join("");
+          const comments = await api.get(`/api/comments/museum/${museumId}`);
+          renderComments(byId("comments"), comments);
+        } catch (error) {
+          byId("museum").innerHTML = `<p class="muted">${error.message}</p>`;
+        }
       }
 
       byId("commentForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const data = await api.post(
-          "/api/comments",
-          { target_type: "museum", target_id: Number(museumId), content: new FormData(e.target).get("content") },
-          true
-        );
-        if (data.id) {
+        try {
+          await api.post(
+            "/api/comments",
+            { target_type: "museum", target_id: Number(museumId), content: new FormData(e.target).get("content") },
+            true
+          );
           e.target.reset();
           load();
-        } else {
-          alert(data.error || (data.errors && data.errors.join(", ")) || "Unable to post comment");
+        } catch (error) {
+          alert(error.message);
         }
       });
       byId("ratingForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const data = await api.post(
-          "/api/ratings",
-          { target_type: "museum", target_id: Number(museumId), score: Number(new FormData(e.target).get("score")) },
-          true
-        );
-        alert(data.message || data.error || (data.errors && data.errors.join(", ")));
-        load();
+        try {
+          const data = await api.post(
+            "/api/ratings",
+            { target_type: "museum", target_id: Number(museumId), score: Number(new FormData(e.target).get("score")) },
+            true
+          );
+          alert(data.message);
+          load();
+        } catch (error) {
+          alert(error.message);
+        }
       });
       load();
     </script>

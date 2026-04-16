@@ -44,8 +44,9 @@
       const { api, getParam, byId, renderComments, ratingText } = window.museumApp;
       const artifactId = getParam("id");
       async function load() {
-        const artifact = await api.get(`/api/artifacts/${artifactId}`);
-        byId("artifact").innerHTML = `
+        try {
+          const artifact = await api.get(`/api/artifacts/${artifactId}`);
+          byId("artifact").innerHTML = `
           <img src="${artifact.image_url || "https://picsum.photos/900/450?artifact"}" alt="${artifact.name}" />
           <section class="panel">
             <h2>${artifact.name}</h2>
@@ -57,40 +58,47 @@
             <p>${artifact.historical_background}</p>
           </section>
         `;
-        const similar = await api.get(`/api/artifacts/${artifactId}/similar`);
-        byId("similar").innerHTML = similar
-          .map(
-            (item) =>
-              `<article class="card"><img src="${item.image_url || "https://picsum.photos/300/200?artifact"}" alt="${item.name}" /><div class="content"><h4>${item.name}</h4><p class="muted">${item.category}</p><a href="/artifact.html?id=${item.id}">View</a></div></article>`
-          )
-          .join("");
-        const comments = await api.get(`/api/comments/artifact/${artifactId}`);
-        renderComments(byId("comments"), comments);
+          const similar = await api.get(`/api/artifacts/${artifactId}/similar`);
+          byId("similar").innerHTML = similar
+            .map(
+              (item) =>
+                `<article class="card"><img src="${item.image_url || "https://picsum.photos/300/200?artifact"}" alt="${item.name}" /><div class="content"><h4>${item.name}</h4><p class="muted">${item.category}</p><a href="/artifact.html?id=${item.id}">View</a></div></article>`
+            )
+            .join("");
+          const comments = await api.get(`/api/comments/artifact/${artifactId}`);
+          renderComments(byId("comments"), comments);
+        } catch (error) {
+          byId("artifact").innerHTML = `<p class="muted">${error.message}</p>`;
+        }
       }
 
       byId("commentForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const data = await api.post(
-          "/api/comments",
-          { target_type: "artifact", target_id: Number(artifactId), content: new FormData(e.target).get("content") },
-          true
-        );
-        if (data.id) {
+        try {
+          await api.post(
+            "/api/comments",
+            { target_type: "artifact", target_id: Number(artifactId), content: new FormData(e.target).get("content") },
+            true
+          );
           e.target.reset();
           load();
-        } else {
-          alert(data.error || (data.errors && data.errors.join(", ")) || "Unable to add comment");
+        } catch (error) {
+          alert(error.message);
         }
       });
       byId("ratingForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const data = await api.post(
-          "/api/ratings",
-          { target_type: "artifact", target_id: Number(artifactId), score: Number(new FormData(e.target).get("score")) },
-          true
-        );
-        alert(data.message || data.error || (data.errors && data.errors.join(", ")));
-        load();
+        try {
+          const data = await api.post(
+            "/api/ratings",
+            { target_type: "artifact", target_id: Number(artifactId), score: Number(new FormData(e.target).get("score")) },
+            true
+          );
+          alert(data.message);
+          load();
+        } catch (error) {
+          alert(error.message);
+        }
       });
       load();
     </script>

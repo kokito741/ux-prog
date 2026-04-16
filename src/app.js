@@ -3,15 +3,35 @@ const express = require("express");
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const pool = require("./db");
+const { getJwtSecret } = require("./config");
 const { requireAuth } = require("./middleware/auth");
 const { requiredString, integerId, ratingScore } = require("./middleware/validation");
 
 const app = express();
-const jwtSecret = process.env.JWT_SECRET || "change-me";
+const jwtSecret = getJwtSecret();
 const validTargetTypes = new Set(["museum", "artifact"]);
+const rateLimitStore = new Map();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
+
+app.use("/api", (req, res, next) => {
+  const key = req.ip || req.socket.remoteAddress || "unknown";
+  const now = Date.now();
+  const windowMs = 60_000;
+  const max = 120;
+  const data = rateLimitStore.get(key) || { count: 0, resetAt: now + windowMs };
+  if (now > data.resetAt) {
+    data.count = 0;
+    data.resetAt = now + windowMs;
+  }
+  data.count += 1;
+  rateLimitStore.set(key, data);
+  if (data.count > max) {
+    return res.status(429).json({ error: "Too many requests, try again later" });
+  }
+  return next();
+});
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
@@ -312,8 +332,8 @@ app.post("/api/ratings", requireAuth, async (req, res) => {
   await pool.execute(
     `INSERT INTO ratings (user_id, target_type, target_id, score)
      VALUES (?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE score = VALUES(score)`,
-    [req.user.id, target_type, Number(target_id), Number(score)]
+     ON DUPLICATE KEY UPDATE score = ?`,
+    [req.user.id, target_type, Number(target_id), Number(score), Number(score)]
   );
   res.status(201).json({ message: "Rating saved" });
 });

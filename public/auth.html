@@ -41,20 +41,24 @@
       if (localStorage.getItem("token")) status.textContent = "Token stored in browser";
       byId("registerForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const f = new FormData(e.target);
-        const data = await api.post("/api/auth/register", Object.fromEntries(f.entries()));
-        alert(data.error || (data.errors && data.errors.join(", ")) || "Registered");
+        try {
+          const f = new FormData(e.target);
+          await api.post("/api/auth/register", Object.fromEntries(f.entries()));
+          alert("Registered");
+        } catch (error) {
+          alert(error.message);
+        }
       });
       byId("loginForm").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const f = new FormData(e.target);
-        const data = await api.post("/api/auth/login", Object.fromEntries(f.entries()));
-        if (data.token) {
+        try {
+          const f = new FormData(e.target);
+          const data = await api.post("/api/auth/login", Object.fromEntries(f.entries()));
           localStorage.setItem("token", data.token);
           status.textContent = "Logged in";
           alert("Logged in");
-        } else {
-          alert(data.error || (data.errors && data.errors.join(", ")) || "Failed");
+        } catch (error) {
+          alert(error.message);
         }
       });
     </script>
