@@ -10,19 +10,47 @@
     <header>
       <h1>Digital Museum Browser</h1>
       <nav>
-        <a href="/">Home</a>
-        <a href="/museums.html">Museums</a>
-        <a href="/auth.html">Login/Register</a>
+        <a href="/" title="Home">🏠</a>
+        <a href="/auth.html" class="nav-auth" title="Account">👤</a>
       </nav>
     </header>
-    <main>
-      <section class="panel">
-        <h2>Explore museums and artifacts</h2>
-        <p class="muted">
-          Browse a multi-museum platform where you can discover exhibits, read historical context, and add ratings and comments.
-        </p>
-        <p><a href="/museums.html">Start browsing museums →</a></p>
-      </section>
+    <main class="home-main">
+      <div id="museums" class="home-grid"></div>
     </main>
+    <script src="/app.js"></script>
+    <script>
+      const {
+        api,
+        byId,
+        ratingText,
+        imageUrls,
+        renderSlideshow,
+        initSlideshows,
+      } = window.museumApp;
+      (async () => {
+        try {
+          const museums = await api.get("/api/museums");
+          byId("museums").innerHTML = museums
+            .slice(0, 3)
+            .map(
+              (museum) => `
+            <article class="card museum-card">
+              ${renderSlideshow(imageUrls(museum.image_url, "museum"), museum.name)}
+              <div class="content">
+                <h3>${museum.name}</h3>
+                <p class="muted">${museum.location}</p>
+                <p>${museum.description.slice(0, 100)}...</p>
+                <p>${ratingText(museum)}</p>
+                <a href="/museum.html?id=${museum.id}" class="btn">Explore Museum</a>
+              </div>
+            </article>`,
+            )
+            .join("");
+          initSlideshows(byId("museums"));
+        } catch (error) {
+          byId("museums").innerHTML = `<p class="muted">${error.message}</p>`;
+        }
+      })();
+    </script>
   </body>
 </html>

@@ -9,7 +9,11 @@
   <body>
     <header>
       <h1>Artifact Exhibit Viewer</h1>
-      <nav><a href="/">Home</a><a href="/museums.html">Museums</a></nav>
+      <nav>
+        <a href="/" title="Home">🏠</a>
+        <a href="javascript:history.back()" title="Go back">← Back</a>
+        <a href="/auth.html" class="nav-auth" title="Account">👤</a>
+      </nav>
     </header>
     <main>
       <section id="artifact" class="detail"></section>
@@ -20,7 +24,11 @@
       <section class="panel">
         <h2>Comments</h2>
         <form id="commentForm">
-          <textarea name="content" placeholder="Share your thoughts..." required></textarea>
+          <textarea
+            name="content"
+            placeholder="Share your thoughts..."
+            required
+          ></textarea>
           <button type="submit">Add comment</button>
         </form>
         <div id="comments"></div>
@@ -41,7 +49,16 @@
     </main>
     <script src="/app.js"></script>
     <script>
-      const { api, getParam, byId, renderComments, ratingText, imageUrls, renderSlideshow, initSlideshows } = window.museumApp;
+      const {
+        api,
+        getParam,
+        byId,
+        renderComments,
+        ratingText,
+        imageUrls,
+        renderSlideshow,
+        initSlideshows,
+      } = window.museumApp;
       const artifactId = getParam("id");
       async function load() {
         try {
@@ -62,11 +79,13 @@
           byId("similar").innerHTML = similar
             .map(
               (item) =>
-                `<article class="card">${renderSlideshow(imageUrls(item.image_url, "artifact"), item.name)}<div class="content"><h4>${item.name}</h4><p class="muted">${item.category}</p><a href="/artifact.html?id=${item.id}">View</a></div></article>`
+                `<article class="card">${renderSlideshow(imageUrls(item.image_url, "artifact"), item.name)}<div class="content"><h4>${item.name}</h4><p class="muted">${item.category}</p><a href="/artifact.html?id=${item.id}">View</a></div></article>`,
             )
             .join("");
           initSlideshows();
-          const comments = await api.get(`/api/comments/artifact/${artifactId}`);
+          const comments = await api.get(
+            `/api/comments/artifact/${artifactId}`,
+          );
           renderComments(byId("comments"), comments);
         } catch (error) {
           byId("artifact").innerHTML = `<p class="muted">${error.message}</p>`;
@@ -78,8 +97,12 @@
         try {
           await api.post(
             "/api/comments",
-            { target_type: "artifact", target_id: Number(artifactId), content: new FormData(e.target).get("content") },
-            true
+            {
+              target_type: "artifact",
+              target_id: Number(artifactId),
+              content: new FormData(e.target).get("content"),
+            },
+            true,
           );
           e.target.reset();
           load();
@@ -92,8 +115,12 @@
         try {
           const data = await api.post(
             "/api/ratings",
-            { target_type: "artifact", target_id: Number(artifactId), score: Number(new FormData(e.target).get("score")) },
-            true
+            {
+              target_type: "artifact",
+              target_id: Number(artifactId),
+              score: Number(new FormData(e.target).get("score")),
+            },
+            true,
           );
           alert(data.message);
           load();
