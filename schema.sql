@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS museums (
   name VARCHAR(255) NOT NULL,
   location VARCHAR(255) NOT NULL,
   description TEXT NOT NULL,
-  image_url VARCHAR(500),
+  image_url TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS artifacts (
   id INT PRIMARY KEY AUTO_INCREMENT,
   museum_id INT NOT NULL,
   name VARCHAR(255) NOT NULL,
-  image_url VARCHAR(500),
+  image_url TEXT,
   description TEXT NOT NULL,
   historical_background TEXT NOT NULL,
   category VARCHAR(120) NOT NULL,
