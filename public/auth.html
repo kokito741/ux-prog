@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auth | Digital Museum Browser</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Account</h1>
+      <nav><a href="/">Home</a><a href="/museums.html">Museums</a></nav>
+    </header>
+    <main class="grid">
+      <section class="panel">
+        <h2>Register</h2>
+        <form id="registerForm">
+          <input name="username" placeholder="Username" required />
+          <input name="email" type="email" placeholder="Email" required />
+          <input name="password" type="password" placeholder="Password" required />
+          <button type="submit">Create account</button>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>Login</h2>
+        <form id="loginForm">
+          <input name="email" type="email" placeholder="Email" required />
+          <input name="password" type="password" placeholder="Password" required />
+          <button type="submit">Sign in</button>
+        </form>
+      </section>
+      <section class="panel">
+        <h3>Session</h3>
+        <p id="sessionStatus" class="muted">Not logged in</p>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+    <script>
+      const { api, byId } = window.museumApp;
+      const status = byId("sessionStatus");
+      if (localStorage.getItem("token")) status.textContent = "Token stored in browser";
+      byId("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const data = await api.post("/api/auth/register", Object.fromEntries(f.entries()));
+        alert(data.error || (data.errors && data.errors.join(", ")) || "Registered");
+      });
+      byId("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const f = new FormData(e.target);
+        const data = await api.post("/api/auth/login", Object.fromEntries(f.entries()));
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          status.textContent = "Logged in";
+          alert("Logged in");
+        } else {
+          alert(data.error || (data.errors && data.errors.join(", ")) || "Failed");
+        }
+      });
+    </script>
+  </body>
+</html>
