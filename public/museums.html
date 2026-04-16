@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Museums | Digital Museum Browser</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Museums</h1>
+      <nav><a href="/">Home</a><a href="/auth.html">Login/Register</a></nav>
+    </header>
+    <main>
+      <div id="museums" class="grid"></div>
+    </main>
+    <script src="/app.js"></script>
+    <script>
+      const { api, byId, ratingText } = window.museumApp;
+      (async () => {
+        try {
+          const museums = await api.get("/api/museums");
+          byId("museums").innerHTML = museums
+            .map(
+              (museum) => `
+            <article class="card">
+              <img src="${museum.image_url || "https://picsum.photos/400/250?museum"}" alt="${museum.name}" />
+              <div class="content">
+                <h3>${museum.name}</h3>
+                <p class="muted">${museum.location}</p>
+                <p>${museum.description.slice(0, 120)}...</p>
+                <p>${ratingText(museum)}</p>
+                <a href="/museum.html?id=${museum.id}">Open museum</a>
+              </div>
+            </article>`
+            )
+            .join("");
+        } catch (error) {
+          byId("museums").innerHTML = `<p class="muted">${error.message}</p>`;
+        }
+      })();
+    </script>
+  </body>
+</html>

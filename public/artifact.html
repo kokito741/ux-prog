@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Artifact Exhibit | Digital Museum Browser</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Artifact Exhibit Viewer</h1>
+      <nav><a href="/">Home</a><a href="/museums.html">Museums</a></nav>
+    </header>
+    <main>
+      <section id="artifact" class="detail"></section>
+      <section class="panel">
+        <h2>Similar artifacts</h2>
+        <div id="similar" class="grid"></div>
+      </section>
+      <section class="panel">
+        <h2>Comments</h2>
+        <form id="commentForm">
+          <textarea name="content" placeholder="Share your thoughts..." required></textarea>
+          <button type="submit">Add comment</button>
+        </form>
+        <div id="comments"></div>
+      </section>
+      <section class="panel">
+        <h2>Rate this artifact</h2>
+        <form id="ratingForm">
+          <select name="score" required>
+            <option value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+          </select>
+          <button type="submit">Submit rating</button>
+        </form>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+    <script>
+      const { api, getParam, byId, renderComments, ratingText } = window.museumApp;
+      const artifactId = getParam("id");
+      async function load() {
+        try {
+          const artifact = await api.get(`/api/artifacts/${artifactId}`);
+          byId("artifact").innerHTML = `
+          <img src="${artifact.image_url || "https://picsum.photos/900/450?artifact"}" alt="${artifact.name}" />
+          <section class="panel">
+            <h2>${artifact.name}</h2>
+            <p class="muted">Category: ${artifact.category}</p>
+            <p>${ratingText(artifact)}</p>
+            <h3>Description</h3>
+            <p>${artifact.description}</p>
+            <h3>Historical background</h3>
+            <p>${artifact.historical_background}</p>
+          </section>
+        `;
+          const similar = await api.get(`/api/artifacts/${artifactId}/similar`);
+          byId("similar").innerHTML = similar
+            .map(
+              (item) =>
+                `<article class="card"><img src="${item.image_url || "https://picsum.photos/300/200?artifact"}" alt="${item.name}" /><div class="content"><h4>${item.name}</h4><p class="muted">${item.category}</p><a href="/artifact.html?id=${item.id}">View</a></div></article>`
+            )
+            .join("");
+          const comments = await api.get(`/api/comments/artifact/${artifactId}`);
+          renderComments(byId("comments"), comments);
+        } catch (error) {
+          byId("artifact").innerHTML = `<p class="muted">${error.message}</p>`;
+        }
+      }
+
+      byId("commentForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+          await api.post(
+            "/api/comments",
+            { target_type: "artifact", target_id: Number(artifactId), content: new FormData(e.target).get("content") },
+            true
+          );
+          e.target.reset();
+          load();
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+      byId("ratingForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        try {
+          const data = await api.post(
+            "/api/ratings",
+            { target_type: "artifact", target_id: Number(artifactId), score: Number(new FormData(e.target).get("score")) },
+            true
+          );
+          alert(data.message);
+          load();
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+      load();
+    </script>
+  </body>
+</html>
