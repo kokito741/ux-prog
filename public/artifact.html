@@ -41,13 +41,13 @@
     </main>
     <script src="/app.js"></script>
     <script>
-      const { api, getParam, byId, renderComments, ratingText } = window.museumApp;
+      const { api, getParam, byId, renderComments, ratingText, imageUrls, renderSlideshow, initSlideshows } = window.museumApp;
       const artifactId = getParam("id");
       async function load() {
         try {
           const artifact = await api.get(`/api/artifacts/${artifactId}`);
           byId("artifact").innerHTML = `
-          <img src="${artifact.image_url || "https://picsum.photos/900/450?artifact"}" alt="${artifact.name}" />
+          ${renderSlideshow(imageUrls(artifact.image_url, "artifact"), artifact.name)}
           <section class="panel">
             <h2>${artifact.name}</h2>
             <p class="muted">Category: ${artifact.category}</p>
@@ -62,9 +62,10 @@
           byId("similar").innerHTML = similar
             .map(
               (item) =>
-                `<article class="card"><img src="${item.image_url || "https://picsum.photos/300/200?artifact"}" alt="${item.name}" /><div class="content"><h4>${item.name}</h4><p class="muted">${item.category}</p><a href="/artifact.html?id=${item.id}">View</a></div></article>`
+                `<article class="card">${renderSlideshow(imageUrls(item.image_url, "artifact"), item.name)}<div class="content"><h4>${item.name}</h4><p class="muted">${item.category}</p><a href="/artifact.html?id=${item.id}">View</a></div></article>`
             )
             .join("");
+          initSlideshows();
           const comments = await api.get(`/api/comments/artifact/${artifactId}`);
           renderComments(byId("comments"), comments);
         } catch (error) {

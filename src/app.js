@@ -81,6 +81,21 @@ app.post("/api/auth/login", async (req, res) => {
   return res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
 });
 
+app.delete("/api/auth/profile", requireAuth, async (req, res) => {
+  const anonymizedUsername = `deleted_user_${req.user.id}`;
+  const anonymizedEmail = `deleted_user_${req.user.id}@deleted.local`;
+  const randomPassword = `${Date.now()}-${Math.random()}-${req.user.id}`;
+  const passwordHash = await argon2.hash(randomPassword);
+
+  const [result] = await pool.execute(
+    "UPDATE users SET username = ?, email = ?, password_hash = ? WHERE id = ?",
+    [anonymizedUsername, anonymizedEmail, passwordHash, req.user.id]
+  );
+
+  if (!result.affectedRows) return res.status(404).json({ error: "User not found" });
+  return res.json({ message: "Profile deleted" });
+});
+
 app.get("/api/museums", async (_req, res) => {
   const [rows] = await pool.execute(
     `SELECT m.id, m.name, m.location, m.description, m.image_url,

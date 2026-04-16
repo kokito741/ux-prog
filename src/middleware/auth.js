@@ -6,7 +6,7 @@ function requireAuth(req, res, next) {
   const [scheme, token] = header.split(" ");
 
   if (scheme !== "Bearer" || !token) {
-    return res.status(401).json({ error: "Authentication required" });
+    return res.status(401).json({ error: "Login required" });
   }
 
   try {
