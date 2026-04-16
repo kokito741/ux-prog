@@ -1,5 +1,3 @@
-USE digital_museum;
-
 INSERT INTO museums (name, location, description, image_url)
 VALUES
   (
