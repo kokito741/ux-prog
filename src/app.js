@@ -1,4 +1,5 @@
 const path = require("path");
+const { randomUUID } = require("crypto");
 const express = require("express");
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
@@ -84,7 +85,7 @@ app.post("/api/auth/login", async (req, res) => {
 app.delete("/api/auth/profile", requireAuth, async (req, res) => {
   const anonymizedUsername = `deleted_user_${req.user.id}`;
   const anonymizedEmail = `deleted_user_${req.user.id}@deleted.local`;
-  const randomPassword = `${Date.now()}-${Math.random()}-${req.user.id}`;
+  const randomPassword = randomUUID();
   const passwordHash = await argon2.hash(randomPassword);
 
   const [result] = await pool.execute(

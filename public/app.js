@@ -47,15 +47,42 @@
       .join("");
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function safeImageUrl(value) {
+    try {
+      const parsed = new URL(value, window.location.origin);
+      if (parsed.protocol === "http:" || parsed.protocol === "https:") return parsed.href;
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
   function imageUrls(value, fallbackSeed) {
-    const urls = typeof value === "string" ? value.split(/[,\n]/).map((entry) => entry.trim()).filter(Boolean) : [];
+    const urls =
+      typeof value === "string"
+        ? value
+            .split(/[,\n]/)
+            .map((entry) => entry.trim())
+            .map((entry) => safeImageUrl(entry))
+            .filter(Boolean)
+        : [];
     if (urls.length) return urls;
     return [`https://picsum.photos/900/450?${fallbackSeed}`];
   }
 
   function renderSlideshow(urls, altText) {
+    const escapedAltText = escapeHtml(altText);
     const slides = urls
-      .map((url, index) => `<img src="${url}" alt="${altText}" class="slide${index === 0 ? " active" : ""}" />`)
+      .map((url, index) => `<img src="${url}" alt="${escapedAltText}" class="slide${index === 0 ? " active" : ""}" />`)
       .join("");
     const controls =
       urls.length > 1
