@@ -40,6 +40,10 @@ ux-prog/
    ```bash
    mysql -u root -p < schema.sql
    ```
+   If you already have an existing database from older schema versions, run:
+   ```bash
+   mysql -u root -p digital_museum < migrations/20260416_expand_image_url_columns.sql
+   ```
 4. Start app:
    ```bash
    npm run start

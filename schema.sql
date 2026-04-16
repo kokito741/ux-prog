@@ -31,12 +31,6 @@ CREATE TABLE IF NOT EXISTS artifacts (
   CONSTRAINT fk_artifacts_museum FOREIGN KEY (museum_id) REFERENCES museums(id) ON DELETE CASCADE
 );
 
-ALTER TABLE museums
-  MODIFY COLUMN image_url TEXT;
-
-ALTER TABLE artifacts
-  MODIFY COLUMN image_url TEXT;
-
 CREATE TABLE IF NOT EXISTS comments (
   id INT PRIMARY KEY AUTO_INCREMENT,
   user_id INT NOT NULL,
