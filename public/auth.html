@@ -32,13 +32,19 @@
       <section class="panel">
         <h3>Session</h3>
         <p id="sessionStatus" class="muted">Not logged in</p>
+        <button id="logoutButton" type="button">Logout</button>
+        <button id="deleteProfileButton" type="button" class="danger">Delete profile</button>
       </section>
     </main>
     <script src="/app.js"></script>
     <script>
       const { api, byId } = window.museumApp;
       const status = byId("sessionStatus");
-      if (localStorage.getItem("token")) status.textContent = "Token stored in browser";
+      function refreshSessionStatus() {
+        status.textContent = localStorage.getItem("token") ? "Logged in" : "Not logged in";
+      }
+      refreshSessionStatus();
+
       byId("registerForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         try {
@@ -55,8 +61,27 @@
           const f = new FormData(e.target);
           const data = await api.post("/api/auth/login", Object.fromEntries(f.entries()));
           localStorage.setItem("token", data.token);
-          status.textContent = "Logged in";
+          refreshSessionStatus();
           alert("Logged in");
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+
+      byId("logoutButton").addEventListener("click", () => {
+        localStorage.removeItem("token");
+        refreshSessionStatus();
+        alert("Logged out");
+      });
+
+      byId("deleteProfileButton").addEventListener("click", async () => {
+        if (!localStorage.getItem("token")) return alert("Login required");
+        if (!confirm("Delete your profile? Your comments and ratings will stay visible.")) return;
+        try {
+          await api.del("/api/auth/profile", true);
+          localStorage.removeItem("token");
+          refreshSessionStatus();
+          alert("Profile deleted");
         } catch (error) {
           alert(error.message);
         }

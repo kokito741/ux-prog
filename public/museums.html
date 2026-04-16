@@ -16,7 +16,7 @@
     </main>
     <script src="/app.js"></script>
     <script>
-      const { api, byId, ratingText } = window.museumApp;
+      const { api, byId, ratingText, imageUrls, renderSlideshow, initSlideshows } = window.museumApp;
       (async () => {
         try {
           const museums = await api.get("/api/museums");
@@ -24,7 +24,7 @@
             .map(
               (museum) => `
             <article class="card">
-              <img src="${museum.image_url || "https://picsum.photos/400/250?museum"}" alt="${museum.name}" />
+              ${renderSlideshow(imageUrls(museum.image_url, "museum"), museum.name)}
               <div class="content">
                 <h3>${museum.name}</h3>
                 <p class="muted">${museum.location}</p>
@@ -35,6 +35,7 @@
             </article>`
             )
             .join("");
+          initSlideshows(byId("museums"));
         } catch (error) {
           byId("museums").innerHTML = `<p class="muted">${error.message}</p>`;
         }
