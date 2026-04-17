@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Museum Detail | Digital Museum Browser</title>
+    <title>Category | Digital Museum Browser</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <header>
-      <h1>Museum</h1>
+      <h1 id="categoryTitle"></h1>
       <nav>
+        <a href="/" title="Home"><img src="/images/home.png" alt="Home" /></a>
         <a href="javascript:history.back()" title="Go back">← Back</a>
         <a href="/auth.html" class="nav-auth" title="Account"
           ><img src="/images/user.png" alt="Account"
@@ -17,35 +18,8 @@
       </nav>
     </header>
     <main>
-      <section id="museum" class="panel"></section>
       <section>
-        <h2>Artifacts</h2>
         <div id="artifacts" class="grid"></div>
-      </section>
-      <section class="panel">
-        <h2>Comments</h2>
-        <form id="commentForm">
-          <textarea
-            name="content"
-            placeholder="Write a comment..."
-            required
-          ></textarea>
-          <button type="submit">Post comment</button>
-        </form>
-        <div id="comments"></div>
-      </section>
-      <section class="panel">
-        <h2>Rate this museum</h2>
-        <form id="ratingForm">
-          <select name="score" required>
-            <option value="5">5</option>
-            <option value="4">4</option>
-            <option value="3">3</option>
-            <option value="2">2</option>
-            <option value="1">1</option>
-          </select>
-          <button type="submit">Submit rating</button>
-        </form>
       </section>
     </main>
 
@@ -88,46 +62,40 @@
         api,
         getParam,
         byId,
-        renderComments,
-        ratingText,
         imageUrls,
         renderSlideshow,
         initSlideshows,
+        ratingText,
       } = window.museumApp;
-      const museumId = getParam("id");
+      const category = getParam("name");
       let currentArtifact = null;
+      let allArtifactsData = [];
 
       async function load() {
         try {
-          const museum = await api.get(`/api/museums/${museumId}`);
-          byId("museum").innerHTML = `
-          ${renderSlideshow(imageUrls(museum.image_url, "museum"), museum.name)}
-          <h2>${museum.name}</h2>
-          <p class="muted">${museum.location}</p>
-          <p>${museum.description}</p>
-          <p>${ratingText(museum)}</p>
-        `;
-          byId("artifacts").innerHTML = museum.artifacts
+          const allArtifacts = await api.get("/api/artifacts");
+          allArtifactsData = allArtifacts;
+          const artifacts = allArtifacts.filter((a) => a.category === category);
+          byId("categoryTitle").textContent = `${category} Artifacts`;
+          byId("artifacts").innerHTML = artifacts
             .map(
               (artifact) => `
             <article class="card artifact-card" data-artifact-id="${artifact.id}">
               ${renderSlideshow(imageUrls(artifact.image_url, "artifact"), artifact.name)}
               <div class="content">
                 <h3>${artifact.name}</h3>
-                <p class="muted">${artifact.category}</p>
+                <p class="muted"><a href="/category.html?name=${encodeURIComponent(artifact.category)}" class="category-link">${artifact.category}</a></p>
               </div>
             </article>`,
             )
             .join("");
           initSlideshows();
-          const comments = await api.get(`/api/comments/museum/${museumId}`);
-          renderComments(byId("comments"), comments);
 
           // Add click handlers to artifact cards
           document.querySelectorAll(".artifact-card").forEach((card) => {
             card.addEventListener("click", async () => {
               const artifactId = card.dataset.artifactId;
-              const artifact = museum.artifacts.find(
+              const artifact = allArtifactsData.find(
                 (a) => a.id === Number(artifactId),
               );
               if (artifact) {
@@ -136,13 +104,12 @@
             });
           });
         } catch (error) {
-          byId("museum").innerHTML = `<p class="muted">${error.message}</p>`;
+          byId("artifacts").innerHTML = `<p class="muted">${error.message}</p>`;
         }
       }
 
       async function openArtifactModal(artifact) {
         currentArtifact = artifact;
-        currentTextPage = 0;
 
         // Set artifact name and category
         byId("modalArtifactName").textContent = artifact.name;
@@ -185,43 +152,6 @@
       document
         .querySelector(".modal-close")
         .addEventListener("click", closeArtifactModal);
-
-      byId("commentForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        try {
-          await api.post(
-            "/api/comments",
-            {
-              target_type: "museum",
-              target_id: Number(museumId),
-              content: new FormData(e.target).get("content"),
-            },
-            true,
-          );
-          e.target.reset();
-          load();
-        } catch (error) {
-          alert(error.message);
-        }
-      });
-      byId("ratingForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        try {
-          const data = await api.post(
-            "/api/ratings",
-            {
-              target_type: "museum",
-              target_id: Number(museumId),
-              score: Number(new FormData(e.target).get("score")),
-            },
-            true,
-          );
-          alert(data.message);
-          load();
-        } catch (error) {
-          alert(error.message);
-        }
-      });
 
       load();
     </script>

@@ -10,9 +10,11 @@
     <header>
       <h1>Artifact Exhibit Viewer</h1>
       <nav>
-        <a href="/" title="Home">🏠</a>
+        <a href="/" title="Home"><img src="/images/home.png" alt="Home" /></a>
         <a href="javascript:history.back()" title="Go back">← Back</a>
-        <a href="/auth.html" class="nav-auth" title="Account">👤</a>
+        <a href="/auth.html" class="nav-auth" title="Account"
+          ><img src="/images/user.png" alt="Account"
+        /></a>
       </nav>
     </header>
     <main>
@@ -67,7 +69,7 @@
           ${renderSlideshow(imageUrls(artifact.image_url, "artifact"), artifact.name)}
           <section class="panel">
             <h2>${artifact.name}</h2>
-            <p class="muted">Category: ${artifact.category}</p>
+            <p class="muted">Category: <a href="/category.html?name=${encodeURIComponent(artifact.category)}" class="category-link">${artifact.category}</a></p>
             <p>${ratingText(artifact)}</p>
             <h3>Description</h3>
             <p>${artifact.description}</p>
