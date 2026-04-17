@@ -10,9 +10,10 @@
     <header>
       <h1>Museum</h1>
       <nav>
-        <a href="/" title="Home">🏠</a>
         <a href="javascript:history.back()" title="Go back">← Back</a>
-        <a href="/auth.html" class="nav-auth" title="Account">👤</a>
+        <a href="/auth.html" class="nav-auth" title="Account"
+          ><img src="/images/user.png" alt="Account"
+        /></a>
       </nav>
     </header>
     <main>
@@ -74,21 +75,6 @@
               </div>
               <div class="artifact-text-container">
                 <div id="modalArtifactText" class="artifact-text"></div>
-                <div class="artifact-pagination">
-                  <button
-                    class="artifact-text-btn prev"
-                    data-text-direction="-1"
-                  >
-                    ‹ Previous
-                  </button>
-                  <span id="textPageIndicator" class="page-indicator"></span>
-                  <button
-                    class="artifact-text-btn next"
-                    data-text-direction="1"
-                  >
-                    Next ›
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -110,8 +96,6 @@
       } = window.museumApp;
       const museumId = getParam("id");
       let currentArtifact = null;
-      let textPages = [];
-      let currentTextPage = 0;
 
       async function load() {
         try {
@@ -156,34 +140,6 @@
         }
       }
 
-      function splitOntPages(text, pageHeightApprox = 300) {
-        if (!text) return [];
-        const lines = text.split("\n").filter((line) => line.trim());
-        const pages = [];
-        let currentPage = [];
-        let currentHeight = 0;
-
-        lines.forEach((line) => {
-          const lineHeight = 25; // approximate height per line
-          if (
-            currentHeight + lineHeight > pageHeightApprox &&
-            currentPage.length > 0
-          ) {
-            pages.push(currentPage.join("\n"));
-            currentPage = [];
-            currentHeight = 0;
-          }
-          currentPage.push(line);
-          currentHeight += lineHeight;
-        });
-
-        if (currentPage.length > 0) {
-          pages.push(currentPage.join("\n"));
-        }
-
-        return pages.length > 0 ? pages : [text];
-      }
-
       async function openArtifactModal(artifact) {
         currentArtifact = artifact;
         currentTextPage = 0;
@@ -193,15 +149,12 @@
         byId("modalArtifactCategory").textContent = artifact.category;
         byId("modalArtifactRating").textContent = ratingText(artifact);
 
-        // Split text into pages
+        // Display full text
         const fullText =
           (artifact.description || "") +
           "\n\n" +
           (artifact.historical_background || "");
-        textPages = splitOntPages(fullText.trim());
-
-        // Show the first page
-        showArtifactTextPage(0);
+        byId("modalArtifactText").textContent = fullText.trim();
 
         // Setup image slideshow
         const images = imageUrls(artifact.image_url, "artifact");
@@ -211,23 +164,6 @@
 
         // Show the modal
         byId("artifactModal").classList.add("active");
-      }
-
-      function showArtifactTextPage(pageIndex) {
-        if (pageIndex < 0 || pageIndex >= textPages.length) return;
-        currentTextPage = pageIndex;
-
-        byId("modalArtifactText").textContent = textPages[pageIndex];
-        byId("textPageIndicator").textContent =
-          textPages.length > 1 ? `${pageIndex + 1} / ${textPages.length}` : "";
-
-        // Update button states
-        document.querySelectorAll(".artifact-text-btn").forEach((btn) => {
-          const direction = Number(btn.dataset.textDirection);
-          btn.disabled =
-            (direction < 0 && pageIndex === 0) ||
-            (direction > 0 && pageIndex === textPages.length - 1);
-        });
       }
 
       function closeArtifactModal() {
@@ -248,14 +184,6 @@
       document
         .querySelector(".modal-close")
         .addEventListener("click", closeArtifactModal);
-
-      // Text pagination buttons
-      document.querySelectorAll(".artifact-text-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const direction = Number(btn.dataset.textDirection);
-          showArtifactTextPage(currentTextPage + direction);
-        });
-      });
 
       byId("commentForm").addEventListener("submit", async (e) => {
         e.preventDefault();

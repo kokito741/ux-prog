@@ -10,7 +10,7 @@
     <header>
       <h1>Account</h1>
       <nav>
-        <a href="/" title="Home">🏠</a>
+        <a href="/" title="Home"><img src="/images/home.png" alt="Home" /></a>
         <a href="javascript:history.back()" title="Go back">← Back</a>
       </nav>
     </header>
@@ -55,10 +55,14 @@
     <script>
       const { api, byId } = window.museumApp;
       const status = byId("sessionStatus");
+      const logoutButton = byId("logoutButton");
+      const deleteProfileButton = byId("deleteProfileButton");
+
       function refreshSessionStatus() {
-        status.textContent = localStorage.getItem("token")
-          ? "Logged in"
-          : "Not logged in";
+        const isLoggedIn = !!localStorage.getItem("token");
+        status.textContent = isLoggedIn ? "Logged in" : "Not logged in";
+        logoutButton.disabled = !isLoggedIn;
+        deleteProfileButton.disabled = !isLoggedIn;
       }
       refreshSessionStatus();
 

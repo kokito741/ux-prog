@@ -31,13 +31,25 @@ header {
   background: linear-gradient(120deg, #1a3a5c, #2563eb);
   color: #fff;
   padding: 1rem 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+
+header h1 {
+  margin: 0;
+  text-align: center;
+  grid-column: 1 / -1;
 }
 
 header nav {
+  grid-column: 1 / -1;
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
 }
 
 header a {
@@ -48,6 +60,13 @@ header a {
   display: flex;
   align-items: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+header a img {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: block;
+  filter: brightness(0) invert(1);
 }
 
 header a.nav-auth {
@@ -127,6 +146,15 @@ main {
   border-radius: var(--radius);
   box-shadow: 0 5px 20px rgba(17, 31, 68, 0.08);
   padding: 1rem;
+  margin-top: 2rem;
+}
+
+main > section {
+  margin-top: 2rem;
+}
+
+main > section:first-child {
+  margin-top: 0;
 }
 
 form {
@@ -153,8 +181,18 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  background: var(--button-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .danger {
   background: #c92a2a;
+}
+
+.danger:disabled {
+  background: var(--button-disabled);
 }
 
 .slide-btn {
@@ -329,35 +367,7 @@ button {
   margin-bottom: 1rem;
 }
 
-.artifact-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-}
 
-.artifact-text-btn {
-  padding: 0.6rem 1.2rem;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.artifact-text-btn:disabled {
-  background: var(--button-disabled);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.page-indicator {
-  font-size: 0.9rem;
-  color: var(--muted);
-  min-width: 80px;
-  text-align: center;
-}
 
 /* Artifact Cards */
 .artifact-card {
@@ -368,6 +378,10 @@ button {
 .artifact-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 30px rgba(17, 31, 68, 0.15);
+}
+
+.artifact-card .slideshow .slide-btn {
+  display: none;
 }
 
 .museum-card {
@@ -427,4 +441,49 @@ button {
 
 #museum .slideshow .slide-btn {
   display: none;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+  .modal-body {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem 1rem;
+    flex-direction: column;
+  }
+
+  .modal-content {
+    width: 95%;
+    height: 90vh;
+    max-height: none;
+  }
+
+  .artifact-images .slideshow {
+    max-height: 250px;
+  }
+
+  .artifact-images .slideshow .slide {
+    height: 250px;
+  }
+
+  .modal-left {
+    min-height: auto;
+  }
+
+  .modal-right {
+    min-height: auto;
+  }
+
+  .artifact-text {
+    max-height: 200px;
+  }
+
+  .modal-close {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.2rem;
+    top: 0.75rem;
+    right: 0.75rem;
+  }
 }
