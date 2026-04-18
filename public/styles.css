@@ -210,25 +210,52 @@ button:disabled {
 }
 
 .slide-btn {
+  --slide-btn-size: 3.6rem;
+  --slide-arrow-size: calc(var(--slide-btn-size) * 0.34);
+  --slide-arrow-stroke: 0.4rem;
   position: absolute;
+  display: block;
   top: 50%;
   transform: translateY(-50%);
-  width: 2rem;
-  height: 2rem;
+  width: var(--slide-btn-size);
+  height: var(--slide-btn-size);
+  padding: 0;
   border-radius: 999px;
-  background: rgba(17, 31, 68, 0.75);
-  color: #fff;
+  background: #fff;
+  color: transparent;
   border: none;
-  line-height: 1;
+  font-size: 0;
+  line-height: 0;
   cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+}
+
+.slide-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--slide-arrow-size);
+  height: var(--slide-arrow-size);
+  border-right: var(--slide-arrow-stroke) solid #111f44;
+  border-bottom: var(--slide-arrow-stroke) solid #111f44;
+  transform: translate(-50%, -50%);
 }
 
 .slide-btn.prev {
   left: 0.5rem;
 }
 
+.slide-btn.prev::before {
+  transform: translate(-30%, -50%) rotate(135deg);
+}
+
 .slide-btn.next {
   right: 0.5rem;
+}
+
+.slide-btn.next::before {
+  transform: translate(-70%, -50%) rotate(-45deg);
 }
 
 .comment {
