@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+  <title id="title">Image not found</title>
+  <desc id="desc">Placeholder illustration indicating a missing image.</desc>
+  <rect width="1200" height="600" fill="#0f1419"/>
+  <rect x="120" y="80" width="960" height="440" rx="28" fill="#1a1f2e" stroke="#2d3748" stroke-width="16"/>
+  <path d="M220 420 L430 250 L560 380 L710 220 L980 420" fill="none" stroke="#8b96a8" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="430" cy="210" r="48" fill="#8b96a8"/>
+  <line x1="280" y1="180" x2="920" y2="430" stroke="#3b82f6" stroke-width="30" stroke-linecap="round"/>
+  <text x="600" y="520" text-anchor="middle" fill="#e0e6ed" font-family="Arial, sans-serif" font-size="52" font-weight="700">Image not found</text>
+</svg>
