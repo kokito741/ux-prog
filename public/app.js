@@ -1,4 +1,6 @@
 (() => {
+  const IMAGE_NOT_FOUND_URL = "/images/image-not-found.svg";
+
   const api = {
     async get(path) {
       const res = await fetch(path);
@@ -66,23 +68,73 @@
     }
   }
 
+  function splitImageUrlList(value) {
+    if (typeof value !== "string") return [];
+    const normalized = value.replace(/\r\n?/g, "\n").trim();
+    if (!normalized) return [];
+    return normalized
+      .split(/,\s*(?=https?:\/\/)|\n+/i)
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+  }
+
+  function normalizeImageUrl(value) {
+    const initial = safeImageUrl(value);
+    if (!initial) return null;
+
+    try {
+      const parsed = new URL(initial);
+
+      if (parsed.hostname === "external-content.duckduckgo.com" && parsed.pathname === "/iu/") {
+        const nestedUrl = parsed.searchParams.get("u");
+        const decodedUrl = nestedUrl ? safeImageUrl(decodeURIComponent(nestedUrl)) : null;
+        if (decodedUrl) return decodedUrl;
+      }
+
+      if (
+        parsed.hostname === "collectionapi.metmuseum.org" &&
+        parsed.pathname.includes("/iiif/") &&
+        /\/main-image\/?$/i.test(parsed.pathname)
+      ) {
+        parsed.pathname = `${parsed.pathname.replace(/\/$/, "")}/full/1200,/0/default.jpg`;
+        parsed.search = "";
+        return parsed.href;
+      }
+
+      return parsed.href;
+    } catch {
+      return initial;
+    }
+  }
+
+  function handleImageError(event) {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement)) return;
+    if (image.dataset.fallbackApplied === "1") return;
+    image.dataset.fallbackApplied = "1";
+    const slide = image.closest(".slide");
+    if (slide) slide.classList.add("image-fallback");
+    image.src = IMAGE_NOT_FOUND_URL;
+  }
+
   function imageUrls(value, fallbackSeed) {
-    const urls =
-      typeof value === "string"
-        ? value
-            .split(/[,\n]/)
-            .map((entry) => entry.trim())
-            .map((entry) => safeImageUrl(entry))
-            .filter(Boolean)
-        : [];
+    const urls = splitImageUrlList(value)
+      .map((entry) => normalizeImageUrl(entry))
+      .filter(Boolean);
     if (urls.length) return urls;
-    return [`https://picsum.photos/900/450?${fallbackSeed}`];
+    return [IMAGE_NOT_FOUND_URL];
   }
 
   function renderSlideshow(urls, altText) {
     const escapedAltText = escapeHtml(altText);
     const slides = urls
-      .map((url, index) => `<img src="${url}" alt="${escapedAltText}" class="slide${index === 0 ? " active" : ""}" />`)
+      .map(
+        (url, index) =>
+          `<figure class="slide${index === 0 ? " active" : ""}">
+             <img src="${url}" alt="${escapedAltText}" loading="lazy" referrerpolicy="no-referrer" onerror="window.museumApp.handleImageError(event)" />
+             <figcaption class="slide-fallback-label">Image unavailable</figcaption>
+           </figure>`
+      )
       .join("");
     const controls =
       urls.length > 1
@@ -116,5 +168,15 @@
     });
   }
 
-  window.museumApp = { api, getParam, byId, ratingText, renderComments, imageUrls, renderSlideshow, initSlideshows };
+  window.museumApp = {
+    api,
+    getParam,
+    byId,
+    ratingText,
+    renderComments,
+    imageUrls,
+    renderSlideshow,
+    initSlideshows,
+    handleImageError,
+  };
 })();
