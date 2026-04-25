@@ -68,10 +68,6 @@
                   <strong>Category:</strong>
                   <span id="modalArtifactCategory"></span>
                 </p>
-                <p>
-                  <strong>Rating:</strong>
-                  <span id="modalArtifactRating"></span>
-                </p>
               </div>
               <div class="artifact-text-container">
                 <div id="modalArtifactText" class="artifact-text"></div>
@@ -82,6 +78,9 @@
       </div>
     </div>
 
+    <footer>
+      <p>&copy; 2025 Digital Museum Browser. All rights reserved.</p>
+    </footer>
     <script src="/app.js"></script>
     <script>
       const {
@@ -148,7 +147,6 @@
         byId("modalArtifactName").textContent = artifact.name;
         byId("modalArtifactCategory").innerHTML =
           `<a href="/category.html?name=${encodeURIComponent(artifact.category)}" class="category-link">${artifact.category}</a>`;
-        byId("modalArtifactRating").textContent = ratingText(artifact);
 
         // Display full text
         const fullText =
