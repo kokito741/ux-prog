@@ -632,7 +632,7 @@ button:disabled {
   border-radius: var(--radius);
   white-space: pre-wrap;
   word-wrap: break-word;
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1.6;
   margin-bottom: 1rem;
 }
@@ -748,7 +748,12 @@ button:disabled {
   }
 
   header a {
-    font-size: 1rem;
+    font-size: 1.1rem;
+  }
+
+  header a img {
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
   main {
@@ -808,6 +813,7 @@ button:disabled {
 
   .artifact-text {
     max-height: 200px;
+    font-size: 1.1rem;
   }
 
   .modal-close {
@@ -845,12 +851,12 @@ button:disabled {
   }
 
   header a {
-    font-size: 0.9rem;
+    font-size: 1rem;
   }
 
   header a img {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
   .grid {
@@ -893,6 +899,7 @@ button:disabled {
   .panel {
     padding: 0.75rem;
     margin-top: 1rem;
+    font-size: 1.1rem;
   }
 
   button,
