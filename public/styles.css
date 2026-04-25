@@ -903,6 +903,21 @@ button:disabled {
   }
 }
 
+/* ===== Footer ===== */
+footer {
+  background: linear-gradient(120deg, #1a3a5c, #2563eb);
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  padding: 1.25rem 1rem;
+  margin-top: 3rem;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+footer p {
+  margin: 0;
+}
+
 /* ===== Authentication Page Styles ===== */
 .auth-container {
   display: grid;

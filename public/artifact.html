@@ -35,20 +35,10 @@
         </form>
         <div id="comments"></div>
       </section>
-      <section class="panel">
-        <h2>Rate this artifact</h2>
-        <form id="ratingForm">
-          <select name="score" required>
-            <option value="5">5</option>
-            <option value="4">4</option>
-            <option value="3">3</option>
-            <option value="2">2</option>
-            <option value="1">1</option>
-          </select>
-          <button type="submit">Submit rating</button>
-        </form>
-      </section>
     </main>
+    <footer>
+      <p>&copy; 2025 Digital Museum Browser. All rights reserved.</p>
+    </footer>
     <script src="/app.js"></script>
     <script>
       const {
@@ -107,24 +97,6 @@
             true,
           );
           e.target.reset();
-          load();
-        } catch (error) {
-          alert(error.message);
-        }
-      });
-      byId("ratingForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        try {
-          const data = await api.post(
-            "/api/ratings",
-            {
-              target_type: "artifact",
-              target_id: Number(artifactId),
-              score: Number(new FormData(e.target).get("score")),
-            },
-            true,
-          );
-          alert(data.message);
           load();
         } catch (error) {
           alert(error.message);
