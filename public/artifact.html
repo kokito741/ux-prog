@@ -46,7 +46,6 @@
         getParam,
         byId,
         renderComments,
-        ratingText,
         imageUrls,
         renderSlideshow,
         initSlideshows,
@@ -60,7 +59,6 @@
           <section class="panel">
             <h2>${artifact.name}</h2>
             <p class="muted">Category: <a href="/category.html?name=${encodeURIComponent(artifact.category)}" class="category-link">${artifact.category}</a></p>
-            <p>${ratingText(artifact)}</p>
             <h3>Description</h3>
             <p>${artifact.description}</p>
             <h3>Historical background</h3>

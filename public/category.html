@@ -42,10 +42,6 @@
                   <strong>Category:</strong>
                   <span id="modalArtifactCategory"></span>
                 </p>
-                <p>
-                  <strong>Rating:</strong>
-                  <span id="modalArtifactRating"></span>
-                </p>
               </div>
               <div class="artifact-text-container">
                 <div id="modalArtifactText" class="artifact-text"></div>
@@ -68,7 +64,6 @@
         imageUrls,
         renderSlideshow,
         initSlideshows,
-        ratingText,
       } = window.museumApp;
       const category = getParam("name");
       let currentArtifact = null;
@@ -118,7 +113,6 @@
         byId("modalArtifactName").textContent = artifact.name;
         byId("modalArtifactCategory").innerHTML =
           `<a href="/category.html?name=${encodeURIComponent(artifact.category)}" class="category-link">${artifact.category}</a>`;
-        byId("modalArtifactRating").textContent = ratingText(artifact);
 
         // Display full text
         const fullText =
