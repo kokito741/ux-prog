@@ -14,42 +14,113 @@
         <a href="javascript:history.back()" title="Go back">← Back</a>
       </nav>
     </header>
-    <main class="grid">
-      <section class="panel">
-        <h2>Register</h2>
-        <form id="registerForm">
-          <input name="username" placeholder="Username" required />
-          <input name="email" type="email" placeholder="Email" required />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            required
-          />
-          <button type="submit">Create account</button>
-        </form>
-      </section>
-      <section class="panel">
-        <h2>Login</h2>
-        <form id="loginForm">
-          <input name="email" type="email" placeholder="Email" required />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            required
-          />
-          <button type="submit">Sign in</button>
-        </form>
-      </section>
-      <section class="panel">
-        <h3>Session</h3>
-        <p id="sessionStatus" class="muted">Not logged in</p>
-        <button id="logoutButton" type="button">Logout</button>
-        <button id="deleteProfileButton" type="button" class="danger">
-          Delete profile
-        </button>
-      </section>
+    <main>
+      <div class="auth-container">
+        <div class="auth-section">
+          <section class="auth-card">
+            <div class="card-header">
+              <h2>Create Account</h2>
+              <p class="card-subtitle">Join our museum community</p>
+            </div>
+            <form id="registerForm" class="auth-form">
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                  id="username"
+                  name="username"
+                  placeholder="Choose your username"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="reg-email">Email</label>
+                <input
+                  id="reg-email"
+                  name="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="reg-password">Password</label>
+                <input
+                  id="reg-password"
+                  name="password"
+                  type="password"
+                  placeholder="At least 8 characters"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn-primary">Create account</button>
+            </form>
+          </section>
+
+          <section class="auth-card">
+            <div class="card-header">
+              <h2>Sign In</h2>
+              <p class="card-subtitle">Access your account</p>
+            </div>
+            <form id="loginForm" class="auth-form">
+              <div class="form-group">
+                <label for="login-email">Email</label>
+                <input
+                  id="login-email"
+                  name="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="login-password">Password</label>
+                <input
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+              <button type="submit" class="btn-primary">Sign in</button>
+            </form>
+          </section>
+        </div>
+
+        <section class="session-card">
+          <div class="card-header">
+            <h2>Session</h2>
+            <p class="card-subtitle">Manage your account</p>
+          </div>
+          <div class="session-content">
+            <div class="status-indicator">
+              <div class="status-badge" id="statusBadge"></div>
+              <div>
+                <p class="status-label">Current Status</p>
+                <p id="sessionStatus" class="status-text">Not logged in</p>
+              </div>
+            </div>
+            <div class="session-actions">
+              <button
+                id="logoutButton"
+                type="button"
+                class="btn-secondary"
+                disabled
+              >
+                Sign out
+              </button>
+              <button
+                id="deleteProfileButton"
+                type="button"
+                class="btn-danger"
+                disabled
+              >
+                Delete profile
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
     <script src="/app.js"></script>
     <script>
@@ -57,12 +128,20 @@
       const status = byId("sessionStatus");
       const logoutButton = byId("logoutButton");
       const deleteProfileButton = byId("deleteProfileButton");
+      const statusBadge = byId("statusBadge");
 
       function refreshSessionStatus() {
         const isLoggedIn = !!localStorage.getItem("token");
         status.textContent = isLoggedIn ? "Logged in" : "Not logged in";
         logoutButton.disabled = !isLoggedIn;
         deleteProfileButton.disabled = !isLoggedIn;
+
+        // Update status badge
+        if (isLoggedIn) {
+          statusBadge.classList.add("logged-in");
+        } else {
+          statusBadge.classList.remove("logged-in");
+        }
       }
       refreshSessionStatus();
 
