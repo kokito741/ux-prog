@@ -4,13 +4,14 @@ const express = require("express");
 const argon2 = require("argon2");
 const jwt = require("jsonwebtoken");
 const pool = require("./db");
-const { getJwtSecret } = require("./config");
+const { getJwtSecret, getArgon2Options } = require("./config");
 const { requireAuth } = require("./middleware/auth");
 const { requiredString, integerId, ratingScore } = require("./middleware/validation");
 const { createRateLimiter } = require("./middleware/rateLimit");
 
 const app = express();
 const jwtSecret = getJwtSecret();
+const argon2Options = getArgon2Options();
 const validTargetTypes = new Set(["museum", "artifact"]);
 
 const globalLimiter = createRateLimiter({ windowMs: 60_000, max: 120 });
@@ -36,7 +37,7 @@ app.post("/api/auth/register", authLimiter, async (req, res) => {
   if (errors.length) return res.status(400).json({ errors });
 
   try {
-    const hash = await argon2.hash(password);
+    const hash = await argon2.hash(password, argon2Options);
     const [result] = await pool.execute(
       "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
       [username.trim(), email.trim().toLowerCase(), hash]
@@ -65,6 +66,11 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
   const valid = await argon2.verify(user.password_hash, password);
   if (!valid) return res.status(401).json({ error: "Invalid credentials" });
 
+  if (argon2.needsRehash(user.password_hash, argon2Options)) {
+    const updatedHash = await argon2.hash(password, argon2Options);
+    await pool.execute("UPDATE users SET password_hash = ? WHERE id = ?", [updatedHash, user.id]);
+  }
+
   const token = jwt.sign({ sub: user.id, username: user.username }, jwtSecret, { expiresIn: "12h" });
   return res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
 });
@@ -73,7 +79,7 @@ app.delete("/api/auth/profile", requireAuth, async (req, res) => {
   const anonymizedUsername = `deleted_user_${req.user.id}`;
   const anonymizedEmail = `deleted_user_${req.user.id}@deleted.local`;
   const randomPassword = randomUUID();
-  const passwordHash = await argon2.hash(randomPassword);
+  const passwordHash = await argon2.hash(randomPassword, argon2Options);
 
   const [result] = await pool.execute(
     "UPDATE users SET username = ?, email = ?, password_hash = ? WHERE id = ?",

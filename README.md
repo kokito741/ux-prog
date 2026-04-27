@@ -101,7 +101,15 @@ curl -X POST http://localhost:3000/api/museums \
 ```
 
 ## Security
-- Passwords are hashed with Argon2.
+- Passwords are hashed with Argon2id using hardened defaults (memory cost 131072 KiB, time cost 4, parallelism 1).
 - JWT-based authentication.
 - Input validation for IDs, required fields, and ratings.
 - Parameterized MySQL queries to reduce SQL injection risk.
+
+### Argon2 tuning
+You can tune Argon2 settings via environment variables:
+- `ARGON2_MEMORY_COST_KIB` (default `131072`)
+- `ARGON2_TIME_COST` (default `4`)
+- `ARGON2_PARALLELISM` (default `1`)
+- `ARGON2_HASH_LENGTH` (default `32`)
+- `ARGON2_SALT_LENGTH` (default `16`)
