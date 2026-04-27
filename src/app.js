@@ -7,38 +7,25 @@ const pool = require("./db");
 const { getJwtSecret } = require("./config");
 const { requireAuth } = require("./middleware/auth");
 const { requiredString, integerId, ratingScore } = require("./middleware/validation");
+const { createRateLimiter } = require("./middleware/rateLimit");
 
 const app = express();
 const jwtSecret = getJwtSecret();
 const validTargetTypes = new Set(["museum", "artifact"]);
-const rateLimitStore = new Map();
+
+const globalLimiter = createRateLimiter({ windowMs: 60_000, max: 120 });
+const authLimiter = createRateLimiter({ windowMs: 15 * 60_000, max: 10 });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
 
-app.use("/api", (req, res, next) => {
-  const key = req.ip || req.socket.remoteAddress || "unknown";
-  const now = Date.now();
-  const windowMs = 60_000;
-  const max = 120;
-  const data = rateLimitStore.get(key) || { count: 0, resetAt: now + windowMs };
-  if (now > data.resetAt) {
-    data.count = 0;
-    data.resetAt = now + windowMs;
-  }
-  data.count += 1;
-  rateLimitStore.set(key, data);
-  if (data.count > max) {
-    return res.status(429).json({ error: "Too many requests, try again later" });
-  }
-  return next();
-});
+app.use("/api", globalLimiter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-app.post("/api/auth/register", async (req, res) => {
+app.post("/api/auth/register", authLimiter, async (req, res) => {
   const { username, email, password } = req.body;
   const errors = [
     requiredString(username, "username", 80),
@@ -63,7 +50,7 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
-app.post("/api/auth/login", async (req, res) => {
+app.post("/api/auth/login", authLimiter, async (req, res) => {
   const { email, password } = req.body;
   const errors = [requiredString(email, "email", 255), requiredString(password, "password", 255)].filter(Boolean);
   if (errors.length) return res.status(400).json({ errors });
