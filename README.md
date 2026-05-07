@@ -2,6 +2,9 @@
 
 Full-stack web application for exploring museums and artifacts with user accounts, comments, and ratings.
 
+## Documentation
+- [Финално UX задание (BG)](docs/final-zadacha.md)
+
 ## Tech stack
 - Backend: Node.js + Express
 - Frontend: HTML/CSS/JavaScript (vanilla)
