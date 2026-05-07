@@ -100,6 +100,15 @@ curl -X POST http://localhost:3000/api/museums \
   -d '{"name":"National Gallery","location":"London, UK","description":"European paintings","image_url":"https://example.com/museum.jpg"}'
 ```
 
+## UX Final Assignment
+
+The finalized Bulgarian UX assignment write-up for **Digital Museum Browser** (team: Константин Капанов 049-sir & Кристиан) is available in the `docs/` folder:
+
+- 📄 [Word document (.docx)](docs/Digital_Museum_Browser_UX_Final_Zadacha.docx)
+- 📝 [Markdown version](docs/Digital_Museum_Browser_UX_Final_Zadacha.md)
+
+The write-up covers: topic, user research, functionalities, page templates, final result, and UX evaluation procedure (Google Forms only, with non-personal demographic questions).
+
 ## Security
 - Passwords are hashed with Argon2id using hardened defaults (memory cost 131072 KiB, time cost 4, parallelism 1).
 - JWT-based authentication.
